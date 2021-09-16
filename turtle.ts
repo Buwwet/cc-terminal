@@ -36,6 +36,19 @@ export class Turtle {
         connection.send(JSON.stringify(sendLabel));
     }
 
+    //Get json for logging.
+    getJSON(): Object {
+        //Add inventory array in the future.
+        const obj = {
+            x: this.x,
+            y: this.y,
+            z: this.z,
+            dir: this.dir,
+            label: this.label,
+        }
+        return obj;
+    }
+
     //Update position.
     async UpdatePosition(direction: string) {
         switch(direction) {
@@ -56,10 +69,10 @@ export class Turtle {
                 if (this.dir > Direction.NORTH) {
                     this.dir--;
                 } else {
-                    this.dir = 4;
+                    this.dir = 3;
                 }
                 break;
-            case "forwards":
+            case "forward":
                 if (this.dir == Direction.NORTH) {this.z--;}
                 if (this.dir == Direction.EAST) {this.x++;}
                 if (this.dir == Direction.SOUTH) {this.z++;}

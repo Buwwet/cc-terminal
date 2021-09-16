@@ -18,7 +18,9 @@ while true do
             local eval = load(parsedResponse.msg);
             local t = eval();
             print(t)
-            ws.send("{\"type\":\"response\",\"msg\":\"" .. tostring(t) .."\"}")
+            ws.send("{\"type\":\"response\",\"msg\":\"" .. tostring(t) .."\"}");
+        elseif parsedResponse.type == "label" then 
+            os.setComputerLabel(parsedResponse.msg);
         end
     end
     

@@ -3,7 +3,6 @@ exports.__esModule = true;
 var webSocketsServerPort = 8080;
 var webSocketServer = require('websocket').server;
 var http = require('http');
-var flatted_1 = require("flatted");
 var turtle_1 = require("./turtle");
 var world_1 = require("./world");
 var server = http.createServer();
@@ -45,19 +44,10 @@ wsServer.on('request', function (request) {
         }
         //Run the functions from the Turtle class
         if (messageParse.type == "eval") {
-            eval("turtles[turtles.length - 1].turtle." + messageParse.msg);
+            eval("turtles[turtles.length - 1].turtle." + messageParse.msg).then(function () {
+                connection.send(JSON.stringify(turtles[turtles.length - 1].turtle.getJSON()));
+            });
         }
-        //Update the client on the turtle class
-        connections.map(function (client, i) {
-            if (turtles.length == 0) {
-                return;
-            }
-            if (client.connection == connection && client.type == "client") {
-                var sendArray = [];
-                //sendArray.push(turtles[turtles.length - 1].turtle)
-                connection.send((0, flatted_1.stringify)(turtles[turtles.length - 1].turtle));
-            }
-        });
         /*
         //Forward messages with the type eval to the computer
         if (messageParse.type == "eval") {

@@ -58,6 +58,18 @@ var Turtle = /** @class */ (function () {
         };
         connection.send(JSON.stringify(sendLabel));
     }
+    //Get json for logging.
+    Turtle.prototype.getJSON = function () {
+        //Add inventory array in the future.
+        var obj = {
+            x: this.x,
+            y: this.y,
+            z: this.z,
+            dir: this.dir,
+            label: this.label
+        };
+        return obj;
+    };
     //Update position.
     Turtle.prototype.UpdatePosition = function (direction) {
         return __awaiter(this, void 0, void 0, function () {
@@ -82,10 +94,10 @@ var Turtle = /** @class */ (function () {
                             this.dir--;
                         }
                         else {
-                            this.dir = 4;
+                            this.dir = 3;
                         }
                         break;
-                    case "forwards":
+                    case "forward":
                         if (this.dir == Direction.NORTH) {
                             this.z--;
                         }

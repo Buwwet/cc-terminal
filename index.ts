@@ -1,7 +1,6 @@
 const webSocketsServerPort = 8080;
 const webSocketServer = require('websocket').server;
 const http = require('http');
-import {parse, stringify, toJSON, fromJSON} from 'flatted';
 
 import {Turtle} from "./turtle";
 import {World} from "./world";
@@ -55,23 +54,11 @@ wsServer.on('request', (request) => {
         
         //Run the functions from the Turtle class
         if (messageParse.type == "eval") {
-            eval("turtles[turtles.length - 1].turtle." + messageParse.msg)
+            eval("turtles[turtles.length - 1].turtle." + messageParse.msg).then(() => {
+                connection.send(JSON.stringify(turtles[turtles.length - 1].turtle.getJSON()))
+            })
         }
 
-        //Update the client on the turtle class
-        connections.map((client, i) => {
-            if (turtles.length == 0) {
-                return;
-            }
-            if (client.connection == connection && client.type == "client") {
-                let sendArray = [];
-                //sendArray.push(turtles[turtles.length - 1].turtle)
-                connection.send(stringify(turtles[turtles.length - 1].turtle));
-
-                //TODO FIX this json monstrocity by sending a copy of
-                //turtle without the connection thing
-            }
-        })
         /*
         //Forward messages with the type eval to the computer
         if (messageParse.type == "eval") {

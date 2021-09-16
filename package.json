@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc ./index.ts; tsc ./turtle.ts; tsc ./world.ts; node index.js"
+    "start": "node index.js",
+    "build": "tsc -w ./index.ts ./turtle.ts ./world.ts"
   },
   "author": "",
   "license": "ISC",
