@@ -1,0 +1,27 @@
+{
+  "type": "commonjs",
+  "name": "cc-terminal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc ./index.ts; tsc ./turtle.ts; tsc ./world.ts; node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "event-emitter": "^0.3.5",
+    "flatted": "^3.2.2",
+    "fs": "0.0.1-security",
+    "http": "0.0.1-security",
+    "node-json-db": "^1.4.0",
+    "react": "^17.0.2",
+    "websocket": "^1.0.34",
+    "ws": "^8.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^16.9.1",
+    "typescript": "^4.4.3"
+  }
+}
