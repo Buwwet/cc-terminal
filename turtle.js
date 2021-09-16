@@ -44,19 +44,23 @@ var Direction = {
     WEST: 3
 };
 var Turtle = /** @class */ (function () {
-    function Turtle(_a, dir, connection) {
+    function Turtle(_a, dir, connection, world) {
         var x = _a[0], y = _a[1], z = _a[2];
         this.x = x;
         this.y = y;
         this.z = z;
         this.dir = dir;
         this.connection = connection;
-        //Make random label making
+        this.world = world;
+        //TODO: Make random label making
         var sendLabel = {
             "type": "label",
             "msg": "homie"
         };
+        this.label = "homie";
         connection.send(JSON.stringify(sendLabel));
+        //test on startup:
+        this.inspectBlocks();
     }
     //Get json for logging.
     Turtle.prototype.getJSON = function () {
@@ -126,6 +130,9 @@ var Turtle = /** @class */ (function () {
                         }
                         break;
                 }
+                //After we have changed positions, update our saved position in the world
+                this.inspectBlocks();
+                this.world.updateTurtle(this, this.x, this.y, this.z);
                 return [2 /*return*/];
             });
         });
@@ -146,10 +153,52 @@ var Turtle = /** @class */ (function () {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.connection.on('message', function (message) {
                             var jsonParse = JSON.parse(message.utf8Data);
-                            var isTrueSet = (jsonParse.msg === 'true');
-                            resolve(isTrueSet);
+                            //Get the response that we normaly get from the command.
+                            var isTrueSet = (jsonParse.result === 'true');
+                            jsonParse.result = isTrueSet; //so that we dont have to make 7 if statements.
+                            //console.log(jsonParse);
+                            resolve(jsonParse);
                         });
                     })];
+            });
+        });
+    };
+    //Runs the 3 turtle used commands to detect
+    //blocks that are foward, up, and nodwn
+    Turtle.prototype.inspectBlocks = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: 
+                    //Wait for the last one to finish to be able
+                    //to send more.
+                    return [4 /*yield*/, this.exec("turtle.inspect()").then(function (v) {
+                            //console.log("Forward: " + v.extra.name);
+                            var blockName = (v.result) ? v.extra.name : "minecraft:air";
+                            //Compact forwardOffsets dependant on direction
+                            var forwardOffsetX = (_this.dir == Direction.EAST) ? 1 : (_this.dir == Direction.WEST) ? -1 : 0;
+                            var forwardOffsetY = (_this.dir == Direction.SOUTH) ? 1 : (_this.dir == Direction.NORTH) ? -1 : 0;
+                            _this.world.updateBlock(_this.x + forwardOffsetX, _this.y, _this.z + forwardOffsetY, blockName);
+                        })];
+                    case 1:
+                        //Wait for the last one to finish to be able
+                        //to send more.
+                        _a.sent();
+                        return [4 /*yield*/, this.exec("turtle.inspectUp()").then(function (v) {
+                                var blockName = (v.result) ? v.extra.name : "minecraft:air";
+                                _this.world.updateBlock(_this.x, _this.y + 1, _this.z, blockName);
+                            })];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, this.exec("turtle.inspectDown()").then(function (v) {
+                                var blockName = (v.result) ? v.extra.name : "minecraft:air";
+                                _this.world.updateBlock(_this.x, _this.y - 1, _this.z, blockName);
+                            })];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
             });
         });
     };
@@ -159,7 +208,7 @@ var Turtle = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.exec("turtle.forward()").then(function (v) {
-                            if (v === true) {
+                            if (v.result === true) {
                                 //DO stuff here
                                 _this.UpdatePosition("forward");
                             }
@@ -175,7 +224,7 @@ var Turtle = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.exec("turtle.back()").then(function (v) {
-                            if (v === true) {
+                            if (v.result === true) {
                                 //DO stuff here
                                 _this.UpdatePosition("back");
                             }
@@ -191,7 +240,7 @@ var Turtle = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.exec("turtle.up()").then(function (v) {
-                            if (v === true) {
+                            if (v.result === true) {
                                 //DO stuff here
                                 _this.UpdatePosition("up");
                             }
@@ -207,7 +256,7 @@ var Turtle = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.exec("turtle.down()").then(function (v) {
-                            if (v === true) {
+                            if (v.result === true) {
                                 //DO stuff here
                                 _this.UpdatePosition("down");
                             }
@@ -223,7 +272,7 @@ var Turtle = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.exec("turtle.turnLeft()").then(function (v) {
-                            if (v === true) {
+                            if (v.result === true) {
                                 //DO stuff here
                                 _this.UpdatePosition("left");
                             }
@@ -239,7 +288,7 @@ var Turtle = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.exec("turtle.turnRight()").then(function (v) {
-                            if (v === true) {
+                            if (v.result === true) {
                                 //DO stuff here
                                 _this.UpdatePosition("right");
                             }

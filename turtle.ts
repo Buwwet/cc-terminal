@@ -1,9 +1,12 @@
 import { rejects } from "assert";
 import { S_IWUSR } from "constants";
 import { Dir } from "fs";
+import { JsonDB } from "node-json-db";
 import { resolve } from "path/posix";
 import { stringify } from "querystring";
 import { json } from "stream/consumers";
+
+import { World } from "./world";
 
 const Direction = {
     NORTH: 0,
@@ -13,7 +16,6 @@ const Direction = {
 }
 
 export class Turtle {
-    
     //Turtle variables
     x: number;
     y: number;
@@ -21,19 +23,25 @@ export class Turtle {
     dir: number;
     connection: any;
     label: string;
+    world: World;
 
-    constructor([x, y, z], dir, connection) {
+    constructor([x, y, z], dir, connection, world: World) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.dir = dir;
         this.connection = connection;
-        //Make random label making
+        this.world = world;
+        //TODO: Make random label making
         var sendLabel = {
             "type":"label",
             "msg":"homie"
         }
+        this.label = "homie"
         connection.send(JSON.stringify(sendLabel));
+
+        //test on startup:
+        this.inspectBlocks();
     }
 
     //Get json for logging.
@@ -85,11 +93,14 @@ export class Turtle {
                 if (this.dir == Direction.WEST) {this.x++;}
                 break;
         }
+        //After we have changed positions, update our saved position in the world
+        this.inspectBlocks();
+        this.world.updateTurtle(this, this.x, this.y, this.z);
     }
 
     //Sends json to the turtle that it then runs.
     //waits for a response to know if it was successful
-    async exec<T>(command: string): Promise<boolean> {
+    async exec<T>(command: string): Promise<any> {
         var sendJSON = {
             "type":"function",
             "msg": "return " + command
@@ -99,16 +110,41 @@ export class Turtle {
         return new Promise((resolve, reject) => {
             this.connection.on('message', message => {
                 var jsonParse = JSON.parse(message.utf8Data);
-                var isTrueSet = (jsonParse.msg === 'true')
-                resolve(isTrueSet);
+                //Get the response that we normaly get from the command.
+                var isTrueSet = (jsonParse.result === 'true')
+                jsonParse.result = isTrueSet; //so that we dont have to make 7 if statements.
+                //console.log(jsonParse);
+                resolve(jsonParse);
             })
+        })
+    }
+    //Runs the 3 turtle used commands to detect
+    //blocks that are foward, up, and nodwn
+    async inspectBlocks() {
+        //Wait for the last one to finish to be able
+        //to send more.
+        await this.exec("turtle.inspect()").then((v) => {
+            //console.log("Forward: " + v.extra.name);
+            var blockName = (v.result) ? v.extra.name : "minecraft:air";
+            //Compact forwardOffsets dependant on direction
+            var forwardOffsetX = (this.dir == Direction.EAST) ? 1 : (this.dir == Direction.WEST) ? -1 : 0;
+            var forwardOffsetY = (this.dir == Direction.SOUTH) ? 1 : (this.dir == Direction.NORTH) ? -1 : 0;
+            this.world.updateBlock(this.x + forwardOffsetX, this.y, this.z + forwardOffsetY, blockName);
+        })
+        await this.exec("turtle.inspectUp()").then((v) => {
+            var blockName = (v.result) ? v.extra.name : "minecraft:air";
+            this.world.updateBlock(this.x, this.y + 1, this.z, blockName);
+        })
+        await this.exec("turtle.inspectDown()").then((v) => {
+            var blockName = (v.result) ? v.extra.name : "minecraft:air";
+            this.world.updateBlock(this.x, this.y - 1, this.z, blockName);
         })
     }
 
     async forward() {
         return new Promise((resolve, reject) => {
             this.exec("turtle.forward()").then((v) => {
-                if (v === true) {
+                if (v.result === true) {
                     //DO stuff here
                     this.UpdatePosition("forward");
                 }
@@ -120,7 +156,7 @@ export class Turtle {
     async back() {
         return new Promise((resolve, reject) => {
             this.exec("turtle.back()").then((v) => {
-                if (v === true) {
+                if (v.result === true) {
                     //DO stuff here
                     this.UpdatePosition("back");
                 }
@@ -132,7 +168,7 @@ export class Turtle {
     async up() {
         return new Promise((resolve, reject) => {
             this.exec("turtle.up()").then((v) => {
-                if (v === true) {
+                if (v.result === true) {
                     //DO stuff here
                     this.UpdatePosition("up");
                 }
@@ -144,7 +180,7 @@ export class Turtle {
     async down() {
         return new Promise((resolve, reject) => {
             this.exec("turtle.down()").then((v) => {
-                if (v === true) {
+                if (v.result === true) {
                     //DO stuff here
                     this.UpdatePosition("down");
                 }
@@ -156,7 +192,7 @@ export class Turtle {
     async turnLeft() {
         return new Promise((resolve, reject) => {
             this.exec("turtle.turnLeft()").then((v) => {
-                if (v === true) {
+                if (v.result === true) {
                     //DO stuff here
                     this.UpdatePosition("left");
                 }
@@ -168,7 +204,7 @@ export class Turtle {
     async turnRight() {
         return new Promise((resolve, reject) => {
             this.exec("turtle.turnRight()").then((v) => {
-                if (v === true) {
+                if (v.result === true) {
                     //DO stuff here
                     this.UpdatePosition("right");
                 }

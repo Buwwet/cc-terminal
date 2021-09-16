@@ -16,9 +16,13 @@ while true do
         print(json.encode(parsedResponse));
         if parsedResponse.type == "function" then
             local eval = load(parsedResponse.msg);
-            local t = eval();
+            local t, e = eval();
             print(t)
-            ws.send("{\"type\":\"response\",\"msg\":\"" .. tostring(t) .."\"}");
+            if e then
+                ws.send("{\"type\":\"response\",\"result\":\"" .. tostring(t) .."\",\"extra\":" .. json.encode(e) .. "}");
+            else
+                ws.send("{\"type\":\"response\",\"result\":\"" .. tostring(t) .."\"}");
+            end
         elseif parsedResponse.type == "label" then 
             os.setComputerLabel(parsedResponse.msg);
         end

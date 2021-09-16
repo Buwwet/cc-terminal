@@ -3,8 +3,10 @@ import { Turtle } from "./turtle";
 
 export class World {
     db: JsonDB;
-    constructor() {
+    onChange: Function;
+    constructor(onChange: Function) {
         this.db = new JsonDB('world.json');
+        this.onChange = onChange;
     }
 
     updateTurtle(turtle: Turtle, x: number, y: number, z: number) {
@@ -17,9 +19,14 @@ export class World {
     //DB is a json database
     updateBlock(x: number, y: number, z: number, block: any) {
         this.db.push(`/${x},${y},${z}`, block);
+        this.onChange();
     }
 
     getBlock(x: number, y: number, z: number) {
         this.db.getData(`/${x},${y},${z}`);
+    }
+
+    getJSON(): any {
+        return this.db.getData("/");
     }
 }

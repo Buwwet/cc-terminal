@@ -13,7 +13,7 @@ var wsServer = new webSocketServer({
 });
 var connections = [];
 var turtles = [];
-var world = new world_1.World();
+var world = new world_1.World(updateWorld);
 wsServer.on('request', function (request) {
     //Could add ID system in the future
     console.log((new Date()) + ": Recieved a new connection.");
@@ -33,7 +33,7 @@ wsServer.on('request', function (request) {
                     //Add it to the turtle array
                     if (client.type == "turtle") {
                         turtles.push({
-                            turtle: new turtle_1.Turtle([0, 0, 0], 0, connection)
+                            turtle: new turtle_1.Turtle([0, 0, 0], 0, connection, world)
                         });
                         //var test = turtles[turtles.length - 1].turtle.forward();
                         //test.then((test2) => console.log(test2))
@@ -45,7 +45,14 @@ wsServer.on('request', function (request) {
         //Run the functions from the Turtle class
         if (messageParse.type == "eval") {
             eval("turtles[turtles.length - 1].turtle." + messageParse.msg).then(function () {
-                connection.send(JSON.stringify(turtles[turtles.length - 1].turtle.getJSON()));
+                var sendJSON = {
+                    "type": "log",
+                    "msg": turtles[turtles.length - 1].turtle.getJSON()
+                };
+                connection.send(JSON.stringify(sendJSON));
+                //console.log(worldJSON);
+                //Move this to world
+                //connection.send(JSON.stringify(worldJSON));
             });
         }
         /*
@@ -63,3 +70,19 @@ wsServer.on('request', function (request) {
         */
     });
 });
+function updateWorld() {
+    connections.map(function (value, index) {
+        if (value.type == 'client') {
+            var worldJSON = {
+                "type": "world",
+                "msg": turtles[turtles.length - 1].turtle.world.getJSON()
+            };
+            value.connection.send(JSON.stringify(worldJSON));
+            var turtleJSON = {
+                "type": "turtle",
+                "msg": turtles[turtles.length - 1].turtle.getJSON()
+            };
+            value.connection.send(JSON.stringify(turtleJSON));
+        }
+    });
+}

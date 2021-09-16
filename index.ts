@@ -16,7 +16,7 @@ const wsServer = new webSocketServer({
 const connections = [];
 const turtles = [];
 
-const world = new World();
+const world = new World(updateWorld);
 
 wsServer.on('request', (request) => {
     //Could add ID system in the future
@@ -41,8 +41,8 @@ wsServer.on('request', (request) => {
                     //Add it to the turtle array
                     if (client.type == "turtle") {
                         turtles.push({
-                            turtle: new Turtle([0,0,0], 0, connection)
-                        })
+                            turtle: new Turtle([0,0,0], 0, connection, world)
+                        });
                         //var test = turtles[turtles.length - 1].turtle.forward();
                         //test.then((test2) => console.log(test2))
                         //console.log(turtles[0]);
@@ -55,7 +55,14 @@ wsServer.on('request', (request) => {
         //Run the functions from the Turtle class
         if (messageParse.type == "eval") {
             eval("turtles[turtles.length - 1].turtle." + messageParse.msg).then(() => {
-                connection.send(JSON.stringify(turtles[turtles.length - 1].turtle.getJSON()))
+                var sendJSON = {
+                    "type":"log",
+                    "msg": turtles[turtles.length - 1].turtle.getJSON()
+                }
+                connection.send(JSON.stringify(sendJSON));
+                //console.log(worldJSON);
+                //Move this to world
+                //connection.send(JSON.stringify(worldJSON));
             })
         }
 
@@ -75,3 +82,20 @@ wsServer.on('request', (request) => {
     })
 
 })
+
+function updateWorld() {
+    connections.map((value, index) => {
+        if (value.type == 'client') {
+            var worldJSON = {
+                "type":"world",
+                "msg": turtles[turtles.length - 1].turtle.world.getJSON()
+            }
+            value.connection.send(JSON.stringify(worldJSON));
+            var turtleJSON = {
+                "type":"turtle",
+                "msg": turtles[turtles.length - 1].turtle.getJSON(),
+            }
+            value.connection.send(JSON.stringify(turtleJSON));
+        }
+    })
+}

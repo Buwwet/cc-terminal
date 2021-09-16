@@ -1,0 +1,17 @@
+CLIENT:
+    -- Render the world.json with three.js
+    -- Buttons with commands
+    -- Able to select any active computer.
+    -- index.css
+
+SERVER:
+    -- Send to the client a list of active computers.
+    -- On disconect remove computer from list.
+
+    TURTLE:
+        -- Implement missing functions such as:
+            + The digs {dig(), digUp(), digDown()}
+            + Refuel
+            + Get inventory and update inventory on computer event.
+            
+LUA:
