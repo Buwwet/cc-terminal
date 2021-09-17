@@ -5,32 +5,52 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { useRef, useState } from 'react'
 import * as THREE from 'three';
 
-function Box(props) {
+export default class Box extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            hovered: false
+        }
+    }
     
-    //ref gives us access to the THREE.Mesh object
-    const ref = useRef()
-
-     // Set up state for the hovered and active state
-        const [hovered, setHover] = useState(false)
-        const [active, setActive] = useState(false)
-
-        return (
-            <mesh
-                ref={ref}
-                scale={1}
-                position={props.position}
-                //Implement hover
-                onPointerOver={(e) => setHover(true)}
-                onPointerOut={(e) => setHover(false)}
-            >
-            <boxGeometry args={[1,1,1]}/>
-            <meshStandardMaterial 
-                color={hovered ? 'orange' : 'green'}
-                wireframe={true}
-                />
-            </mesh>
-        )
+    hashCode(str) { // java String#hashCode
+        var hash = 0;
+        for (var i = 0; i < str.length; i++) {
+           hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return hash;
+    } 
     
+    intToRGB(i){
+        var c = (i & 0x00FFFFFF)
+            .toString(16)
+            .toUpperCase();
+    
+        return "00000".substring(0, 6 - c.length) + c;
+    }
+
+    render() {
+    return (
+        <mesh
+            scale={1}
+            position={this.props.position}
+            //Implement hover
+        onPointerOver={(e) => {
+                this.setState((state) => {return {hovered: true}});
+                this.props.handleHover(this.props.block);
+            }}
+        onPointerOut={(e) => {
+            this.setState((state) => {return {hovered: false}})
+            this.props.handleHover("");
+        }}
+        >
+        <boxGeometry args={[1,1,1]}/>
+        <meshStandardMaterial 
+            color={this.state.hovered ? 'orange' : "#" + this.intToRGB(this.hashCode(this.props.block))}
+            wireframe={true}
+            />
+        </mesh>
+        
+    )
 }
-
-export default {Box}
+}

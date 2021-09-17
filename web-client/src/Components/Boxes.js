@@ -19,11 +19,13 @@ export default class Boxes extends Component {
             }
             //console.log(key.split(','));
             boxesArray.push(
-                <Box.Box 
+                <Box 
                     key={key}
+                    block={value}
                     position={key.split(',')}
+                    handleHover={this.props.handleHover}
                     >
-                </Box.Box>
+                </Box>
             )
             //console.log(boxesArray);
         });
