@@ -7,8 +7,8 @@ var World = /** @class */ (function () {
         this.db = new node_json_db_1.JsonDB('world.json');
         this.onChange = onChange;
     }
-    World.prototype.updateTurtle = function (turtle, x, y, z) {
-        this.db.push("/turtles/" + turtle.label, [x, y, z]);
+    World.prototype.updateTurtle = function (turtle, x, y, z, dir) {
+        this.db.push("/turtles/" + turtle.label, [x, y, z, dir]);
     };
     World.prototype.getTurtle = function (turtle) {
         return this.db.getData("/turtles/" + turtle.label);

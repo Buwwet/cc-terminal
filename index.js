@@ -71,6 +71,7 @@ wsServer.on('request', function (request) {
     });
 });
 function updateWorld() {
+    //console.log("worldJSON")
     connections.map(function (value, index) {
         if (value.type == 'client') {
             var worldJSON = {
@@ -83,6 +84,11 @@ function updateWorld() {
                 "msg": turtles[turtles.length - 1].turtle.getJSON()
             };
             value.connection.send(JSON.stringify(turtleJSON));
+            var inventoryJSON = {
+                "type": "log",
+                "msg": turtles[turtles.length - 1].turtle.inventory
+            };
+            value.connection.send(JSON.stringify(inventoryJSON));
         }
     });
 }

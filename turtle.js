@@ -45,6 +45,7 @@ var Direction = {
 };
 var Turtle = /** @class */ (function () {
     function Turtle(_a, dir, connection, world) {
+        var _this = this;
         var x = _a[0], y = _a[1], z = _a[2];
         this.x = x;
         this.y = y;
@@ -52,13 +53,41 @@ var Turtle = /** @class */ (function () {
         this.dir = dir;
         this.connection = connection;
         this.world = world;
+        this.inventory = new Array(16);
+        //Get current label
+        this.exec('os.getComputerLabel()').then(function (v) {
+            //Returns "" if no label
+            var label = 'homie';
+            if (v.result == "") { //TODO: test this thing
+                var sendLabel = {
+                    "type": "label",
+                    "msg": label
+                };
+                connection.send(JSON.stringify(sendLabel));
+                _this.label = label;
+            }
+            else {
+                _this.label = v.result;
+                //We know that we have been alive.
+                //So we fetch the positions
+                var rememberPosition = _this.world.getTurtle(_this);
+                _this.x = rememberPosition[0];
+                _this.y = rememberPosition[1];
+                _this.z = rememberPosition[2];
+                _this.dir = rememberPosition[3];
+            }
+            //After that's done get Inventory.
+            _this.getInventory();
+        });
         //TODO: Make random label making
+        /*
         var sendLabel = {
-            "type": "label",
-            "msg": "homie"
-        };
-        this.label = "homie";
+            "type":"label",
+            "msg":"homie"
+        }
+        this.label = "homie"
         connection.send(JSON.stringify(sendLabel));
+        */
         //test on startup:
         this.inspectBlocks();
     }
@@ -78,62 +107,68 @@ var Turtle = /** @class */ (function () {
     Turtle.prototype.UpdatePosition = function (direction) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                switch (direction) {
-                    case "up":
-                        this.y++;
-                        break;
-                    case "down":
-                        this.y--;
-                        break;
-                    case "right":
-                        if (this.dir < Direction.WEST) {
-                            this.dir++;
+                switch (_a.label) {
+                    case 0:
+                        switch (direction) {
+                            case "up":
+                                this.y++;
+                                break;
+                            case "down":
+                                this.y--;
+                                break;
+                            case "right":
+                                if (this.dir < Direction.WEST) {
+                                    this.dir++;
+                                }
+                                else {
+                                    this.dir = 0;
+                                }
+                                break;
+                            case "left":
+                                if (this.dir > Direction.NORTH) {
+                                    this.dir--;
+                                }
+                                else {
+                                    this.dir = 3;
+                                }
+                                break;
+                            case "forward":
+                                if (this.dir == Direction.NORTH) {
+                                    this.z--;
+                                }
+                                if (this.dir == Direction.EAST) {
+                                    this.x++;
+                                }
+                                if (this.dir == Direction.SOUTH) {
+                                    this.z++;
+                                }
+                                if (this.dir == Direction.WEST) {
+                                    this.x--;
+                                }
+                                break;
+                            case "back":
+                                if (this.dir == Direction.NORTH) {
+                                    this.z++;
+                                }
+                                if (this.dir == Direction.EAST) {
+                                    this.x--;
+                                }
+                                if (this.dir == Direction.SOUTH) {
+                                    this.z--;
+                                }
+                                if (this.dir == Direction.WEST) {
+                                    this.x++;
+                                }
+                                break;
                         }
-                        else {
-                            this.dir = 0;
-                        }
-                        break;
-                    case "left":
-                        if (this.dir > Direction.NORTH) {
-                            this.dir--;
-                        }
-                        else {
-                            this.dir = 3;
-                        }
-                        break;
-                    case "forward":
-                        if (this.dir == Direction.NORTH) {
-                            this.z--;
-                        }
-                        if (this.dir == Direction.EAST) {
-                            this.x++;
-                        }
-                        if (this.dir == Direction.SOUTH) {
-                            this.z++;
-                        }
-                        if (this.dir == Direction.WEST) {
-                            this.x--;
-                        }
-                        break;
-                    case "back":
-                        if (this.dir == Direction.NORTH) {
-                            this.z++;
-                        }
-                        if (this.dir == Direction.EAST) {
-                            this.x--;
-                        }
-                        if (this.dir == Direction.SOUTH) {
-                            this.z--;
-                        }
-                        if (this.dir == Direction.WEST) {
-                            this.x++;
-                        }
-                        break;
+                        //After we have changed positions, update our saved position in the world
+                        return [4 /*yield*/, this.inspectBlocks()];
+                    case 1:
+                        //After we have changed positions, update our saved position in the world
+                        _a.sent();
+                        this.world.updateTurtle(this, this.x, this.y, this.z, this.dir); //also save everything important for restarting a turtle
+                        return [2 /*return*/];
                 }
-                //After we have changed positions, update our saved position in the world
-                this.inspectBlocks();
-                this.world.updateTurtle(this, this.x, this.y, this.z);
-                return [2 /*return*/];
             });
         });
     };
@@ -155,7 +190,7 @@ var Turtle = /** @class */ (function () {
                             var jsonParse = JSON.parse(message.utf8Data);
                             //Get the response that we normaly get from the command.
                             var isTrueSet = (jsonParse.result === 'true');
-                            jsonParse.result = isTrueSet; //so that we dont have to make 7 if statements.
+                            //jsonParse.result = isTrueSet; //so that we dont have to make 7 if statements.
                             //console.log(jsonParse);
                             resolve(jsonParse);
                         });
@@ -169,35 +204,71 @@ var Turtle = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                        var _this = this;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: 
+                                //Wait for the last one to finish to be able
+                                //to send more.
+                                return [4 /*yield*/, this.exec("turtle.inspect()").then(function (v) {
+                                        //console.log("Forward: " + v.extra.name);
+                                        var blockName = (v.result == "true") ? v.extra.name : "minecraft:air";
+                                        //Compact forwardOffsets dependant on direction
+                                        var forwardOffsetX = (_this.dir == Direction.EAST) ? 1 : (_this.dir == Direction.WEST) ? -1 : 0;
+                                        var forwardOffsetZ = (_this.dir == Direction.SOUTH) ? 1 : (_this.dir == Direction.NORTH) ? -1 : 0;
+                                        _this.world.updateBlock(_this.x + forwardOffsetX, _this.y, _this.z + forwardOffsetZ, blockName);
+                                    })];
+                                case 1:
+                                    //Wait for the last one to finish to be able
+                                    //to send more.
+                                    _a.sent();
+                                    return [4 /*yield*/, this.exec("turtle.inspectUp()").then(function (v) {
+                                            var blockName = (v.result == "true") ? v.extra.name : "minecraft:air";
+                                            _this.world.updateBlock(_this.x, _this.y + 1, _this.z, blockName);
+                                        })];
+                                case 2:
+                                    _a.sent();
+                                    return [4 /*yield*/, this.exec("turtle.inspectDown()").then(function (v) {
+                                            var blockName = (v.result == "true") ? v.extra.name : "minecraft:air";
+                                            _this.world.updateBlock(_this.x, _this.y - 1, _this.z, blockName);
+                                        })];
+                                case 3:
+                                    _a.sent();
+                                    resolve("");
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); })];
+            });
+        });
+    };
+    //Updates the this.inventory array with that the turtle has
+    Turtle.prototype.getInventory = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var i;
+            var _this = this;
+            return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: 
-                    //Wait for the last one to finish to be able
-                    //to send more.
-                    return [4 /*yield*/, this.exec("turtle.inspect()").then(function (v) {
-                            //console.log("Forward: " + v.extra.name);
-                            var blockName = (v.result) ? v.extra.name : "minecraft:air";
-                            //Compact forwardOffsets dependant on direction
-                            var forwardOffsetX = (_this.dir == Direction.EAST) ? 1 : (_this.dir == Direction.WEST) ? -1 : 0;
-                            var forwardOffsetY = (_this.dir == Direction.SOUTH) ? 1 : (_this.dir == Direction.NORTH) ? -1 : 0;
-                            _this.world.updateBlock(_this.x + forwardOffsetX, _this.y, _this.z + forwardOffsetY, blockName);
-                        })];
+                    case 0:
+                        i = 1;
+                        _a.label = 1;
                     case 1:
-                        //Wait for the last one to finish to be able
-                        //to send more.
-                        _a.sent();
-                        return [4 /*yield*/, this.exec("turtle.inspectUp()").then(function (v) {
-                                var blockName = (v.result) ? v.extra.name : "minecraft:air";
-                                _this.world.updateBlock(_this.x, _this.y + 1, _this.z, blockName);
+                        if (!(i < 17)) return [3 /*break*/, 4];
+                        //Select slot
+                        return [4 /*yield*/, this.exec("turtle.getItemDetail(" + i + ")").then(function (v) {
+                                if (v.result == "true") {
+                                    _this.inventory[i - 1] = v.extra;
+                                }
                             })];
                     case 2:
+                        //Select slot
                         _a.sent();
-                        return [4 /*yield*/, this.exec("turtle.inspectDown()").then(function (v) {
-                                var blockName = (v.result) ? v.extra.name : "minecraft:air";
-                                _this.world.updateBlock(_this.x, _this.y - 1, _this.z, blockName);
-                            })];
+                        _a.label = 3;
                     case 3:
-                        _a.sent();
-                        return [2 /*return*/];
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -208,7 +279,7 @@ var Turtle = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.exec("turtle.forward()").then(function (v) {
-                            if (v.result === true) {
+                            if (v.result == "true") {
                                 //DO stuff here
                                 _this.UpdatePosition("forward");
                             }
@@ -224,7 +295,7 @@ var Turtle = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.exec("turtle.back()").then(function (v) {
-                            if (v.result === true) {
+                            if (v.result == "true") {
                                 //DO stuff here
                                 _this.UpdatePosition("back");
                             }
@@ -240,7 +311,7 @@ var Turtle = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.exec("turtle.up()").then(function (v) {
-                            if (v.result === true) {
+                            if (v.result == "true") {
                                 //DO stuff here
                                 _this.UpdatePosition("up");
                             }
@@ -256,7 +327,7 @@ var Turtle = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.exec("turtle.down()").then(function (v) {
-                            if (v.result === true) {
+                            if (v.result == "true") {
                                 //DO stuff here
                                 _this.UpdatePosition("down");
                             }
@@ -272,7 +343,7 @@ var Turtle = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.exec("turtle.turnLeft()").then(function (v) {
-                            if (v.result === true) {
+                            if (v.result == "true") {
                                 //DO stuff here
                                 _this.UpdatePosition("left");
                             }
@@ -288,13 +359,170 @@ var Turtle = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.exec("turtle.turnRight()").then(function (v) {
-                            if (v.result === true) {
+                            if (v.result == "true") {
                                 //DO stuff here
                                 _this.UpdatePosition("right");
                             }
                             resolve(v);
                         });
                     })];
+            });
+        });
+    };
+    Turtle.prototype.dig = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        _this.exec("turtle.dig()").then(function (v) {
+                            if (v.result == "true") {
+                                _this.inspectBlocks(); //Block has been broken, update findings.
+                            }
+                            _this.getInventory();
+                            resolve(v);
+                        });
+                    })];
+            });
+        });
+    };
+    Turtle.prototype.digUp = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        _this.exec("turtle.digUp()").then(function (v) {
+                            if (v.result == "true") {
+                                _this.inspectBlocks(); //Block has been broken, update findings.
+                            }
+                            _this.getInventory();
+                            resolve(v);
+                        });
+                    })];
+            });
+        });
+    };
+    Turtle.prototype.digDown = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        _this.exec("turtle.digDown()").then(function (v) {
+                            if (v.result == "true") {
+                                _this.inspectBlocks(); //Block has been broken, update findings.
+                            }
+                            _this.getInventory();
+                            resolve(v);
+                        });
+                    })];
+            });
+        });
+    };
+    //basic dig macro
+    Turtle.prototype.digForward = function (distance) {
+        return __awaiter(this, void 0, void 0, function () {
+            var i;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        i = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(i <= distance)) return [3 /*break*/, 16];
+                        return [4 /*yield*/, this.exec("turtle.dig()").then(function (v) { return __awaiter(_this, void 0, void 0, function () {
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0: return [4 /*yield*/, this.inspectBlocks()];
+                                        case 1:
+                                            _a.sent();
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            }); })];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, this.exec("turtle.forward()").then(function (v) {
+                                if (v.result == true) {
+                                    _this.UpdatePosition("forward");
+                                }
+                            })];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, this.exec("turtle.turnLeft()")];
+                    case 4:
+                        _a.sent();
+                        return [4 /*yield*/, this.UpdatePosition("left")];
+                    case 5:
+                        _a.sent();
+                        return [4 /*yield*/, this.inspectBlocks()];
+                    case 6:
+                        _a.sent();
+                        return [4 /*yield*/, this.exec("turtle.turnRight()")];
+                    case 7:
+                        _a.sent();
+                        return [4 /*yield*/, this.UpdatePosition("right")];
+                    case 8:
+                        _a.sent();
+                        return [4 /*yield*/, this.inspectBlocks()];
+                    case 9:
+                        _a.sent();
+                        return [4 /*yield*/, this.exec("turtle.turnRight()")];
+                    case 10:
+                        _a.sent();
+                        return [4 /*yield*/, this.UpdatePosition("right")];
+                    case 11:
+                        _a.sent();
+                        return [4 /*yield*/, this.inspectBlocks()];
+                    case 12:
+                        _a.sent();
+                        return [4 /*yield*/, this.exec("turtle.turnLeft()")];
+                    case 13:
+                        _a.sent();
+                        return [4 /*yield*/, this.UpdatePosition("left")];
+                    case 14:
+                        _a.sent();
+                        _a.label = 15;
+                    case 15:
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 16: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Turtle.prototype.moveForward = function (distance) {
+        return __awaiter(this, void 0, void 0, function () {
+            var i;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        i = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(i < distance)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.exec("turtle.forward()").then(function (v) { return __awaiter(_this, void 0, void 0, function () {
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0:
+                                            if (!(v.result == "true")) return [3 /*break*/, 2];
+                                            return [4 /*yield*/, this.UpdatePosition("forward")];
+                                        case 1:
+                                            _a.sent();
+                                            return [3 /*break*/, 3];
+                                        case 2: return [2 /*return*/];
+                                        case 3: return [2 /*return*/];
+                                    }
+                                });
+                            }); })];
+                    case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3:
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/];
+                }
             });
         });
     };

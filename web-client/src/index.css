@@ -11,3 +11,7 @@
 button.tall {
     height: 240px;
 }
+
+.top {
+    z-index: 10;
+}

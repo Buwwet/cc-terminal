@@ -12,7 +12,17 @@ export default class Boxes extends Component {
         let boxesArray = [];
         worldArray.forEach((value, key) => {
             if (key.includes("turtle")) {
-                return;
+                boxesArray.push(
+                    <mesh 
+                    key={Date()}
+                    scale={0.7}
+                    position={value.homie}>
+                        <boxGeometry args={[1,1,1]}/>
+                        <meshStandardMaterial
+                            color={'gray'}
+                        />
+                    </mesh>
+                )
             }
             if (value == "minecraft:air") {
                 return;

@@ -84,18 +84,25 @@ wsServer.on('request', (request) => {
 })
 
 function updateWorld() {
+    //console.log("worldJSON")
     connections.map((value, index) => {
         if (value.type == 'client') {
             var worldJSON = {
                 "type":"world",
                 "msg": turtles[turtles.length - 1].turtle.world.getJSON()
             }
+            
             value.connection.send(JSON.stringify(worldJSON));
             var turtleJSON = {
                 "type":"turtle",
                 "msg": turtles[turtles.length - 1].turtle.getJSON(),
             }
             value.connection.send(JSON.stringify(turtleJSON));
+            var inventoryJSON = {
+                "type":"log",
+                "msg": turtles[turtles.length - 1].turtle.inventory
+            }
+            value.connection.send(JSON.stringify(inventoryJSON));
         }
     })
 }

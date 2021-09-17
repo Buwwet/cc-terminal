@@ -15,9 +15,10 @@ import Logs from "./Components/Logs";
 import Boxes from "./Components/Boxes";
 import { Camera } from "three";
 import Buttons from "./Components/Buttons";
+import Arrow from "./Components/Arrow";
 
-import { useRef, useState } from 'react'
-const client = new W3CWebSocket("ws://127.0.0.1:8080")
+import { useRef, useState } from 'react';
+const client = new W3CWebSocket("ws://127.0.0.1:8080");
 
 export default class App extends Component {
     constructor(props) {
@@ -68,14 +69,16 @@ export default class App extends Component {
             const dataFromServer = JSON.parse(message.data, );
             //Logs things like turtle.getJSON()
             if (dataFromServer.type == "log") {
-                //console.log(dataFromServer.msg);
+                console.log(dataFromServer.msg);
             }
             if (dataFromServer.type == "world") {
+                //console.log(dataFromServer.msg)
                 this.setState((state) => {
                     return {world: dataFromServer.msg}
                 })
             }
             if (dataFromServer.type == "turtle") {
+                //console.log(dataFromServer.msg)
                 this.setState((state) => {
                     return {turtle: dataFromServer.msg}
                 })
@@ -100,6 +103,15 @@ export default class App extends Component {
         })
     }
 
+    sendFunction(send) {
+        var functionJSON = {
+            "type":"eval",
+            "msg": send
+        }
+        console.log(functionJSON);
+        client.send(JSON.stringify(functionJSON));
+    }
+
     render() {
         //console.log(this.mount)
         //test
@@ -116,9 +128,9 @@ export default class App extends Component {
                     handleChange={this.handleChange}
                     state={this.state}
                 />
-                <Buttons/>
+                <Buttons onClick={this.sendFunction}/>
             </div>
-            <div style={{ position: "relative", width: 1000, height: 700}}>
+            <div style={{ position: "absolute", top: "0px", width: window.innerWidth, height: window.innerHeight}}>
             <Canvas ref={ref => (this.mount = ref)}>
                 <Controls/>
                 <ambientLight/>
@@ -129,7 +141,7 @@ export default class App extends Component {
                         handleHover={this.handleHover}
                     />
                 </group>
-                    
+                <Arrow turtle={this.state.turtle}/>
             </Canvas>
             </div>
         </div>

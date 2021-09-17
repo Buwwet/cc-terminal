@@ -9,11 +9,11 @@ export class World {
         this.onChange = onChange;
     }
 
-    updateTurtle(turtle: Turtle, x: number, y: number, z: number) {
-        this.db.push(`/turtles/${turtle.label}`, [x, y, z])
+    updateTurtle(turtle: Turtle, x: number, y: number, z: number, dir: number) {
+        this.db.push(`/turtles/${turtle.label}`, [x, y, z, dir])
     }
 
-    getTurtle(turtle: Turtle): [number, number, number] {
+    getTurtle(turtle: Turtle): [number, number, number, number] {
         return this.db.getData(`/turtles/${turtle.label}`)
     }
     //DB is a json database
