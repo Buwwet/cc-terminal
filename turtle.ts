@@ -2,7 +2,6 @@ import { rejects } from "assert";
 import { S_IWUSR } from "constants";
 import { Dir } from "fs";
 import { JsonDB } from "node-json-db";
-import { resolve } from "path/posix";
 import { stringify } from "querystring";
 import { json } from "stream/consumers";
 
@@ -123,9 +122,10 @@ export class Turtle {
                 if (this.dir == Direction.WEST) {this.x++;}
                 break;
         }
+
         //After we have changed positions, update our saved position in the world
-        await this.inspectBlocks();
         this.world.updateTurtle(this, this.x, this.y, this.z, this.dir);//also save everything important for restarting a turtle
+        await this.inspectBlocks();
     }
 
     //Sends json to the turtle that it then runs.
@@ -187,121 +187,99 @@ export class Turtle {
         //console.log(this.inventory);
     }
 
-    async forward() {
-        return new Promise((resolve, reject) => {
-            this.exec("turtle.forward()").then((v) => {
-                if (v.result == "true") {
-                    //DO stuff here
-                    this.UpdatePosition("forward");
-                }
-                resolve(v);
-            })
-        })
+    async forward() { //The parent of all other functions that a turtle has.
+        var result =  await this.exec("turtle.forward()");
+        if (result.result == "true") {
+            await this.UpdatePosition("forward");
+        }
+        return(result);
     }
 
     async back() {
-        return new Promise((resolve, reject) => {
-            this.exec("turtle.back()").then((v) => {
-                if (v.result == "true") {
-                    //DO stuff here
-                    this.UpdatePosition("back");
-                }
-                resolve(v);
-            })
-        })
+        var result =  await this.exec("turtle.back()");
+        if (result.result == "true") {
+            await this.UpdatePosition("back");
+        }
+        return(result);
     }
 
     async up() {
-        return new Promise((resolve, reject) => {
-            this.exec("turtle.up()").then((v) => {
-                if (v.result == "true") {
-                    //DO stuff here
-                    this.UpdatePosition("up");
-                }
-                resolve(v);
-            })
-        })
+        var result =  await this.exec("turtle.up()");
+        if (result.result == "true") {
+            await this.UpdatePosition("up");
+        }
+        return(result);
     }
 
     async down() {
-        return new Promise((resolve, reject) => {
-            this.exec("turtle.down()").then((v) => {
-                if (v.result == "true") {
-                    //DO stuff here
-                    this.UpdatePosition("down");
-                }
-                resolve(v);
-            })
-        })
+        var result =  await this.exec("turtle.down()");
+        if (result.result == "true") {
+            await this.UpdatePosition("down");
+        }
+        return(result);
     }
 
     async turnLeft() {
-        return new Promise((resolve, reject) => {
-            this.exec("turtle.turnLeft()").then((v) => {
-                if (v.result == "true") {
-                    //DO stuff here
-                    this.UpdatePosition("left");
-                }
-                resolve(v);
-            })
-        })
+        var result =  await this.exec("turtle.turnLeft()");
+        if (result.result == "true") {
+            await this.UpdatePosition("left");
+        }
+        return(result);
     }
 
     async turnRight() {
-        return new Promise((resolve, reject) => {
-            this.exec("turtle.turnRight()").then((v) => {
-                if (v.result == "true") {
-                    //DO stuff here
-                    this.UpdatePosition("right");
-                }
-                resolve(v);
-            })
-        })
+        var result =  await this.exec("turtle.turnRight()");
+        if (result.result == "true") {
+            await this.UpdatePosition("right");
+        }
+        return(result);
     }
 
     async dig() {
-        return new Promise((resolve, reject) => {
-            this.exec("turtle.dig()").then((v) => {
-                if (v.result == "true") {
-                    this.inspectBlocks(); //Block has been broken, update findings.
-                }
-                this.getInventory()
-                resolve(v);
-            })
-        })}
+        var result =  await this.exec("turtle.dig()");
+        if (result.result == "true") {
+            await this.inspectBlocks(); //Block has been broken, update world.
+        }
+        await this.getInventory();
+        return(result);
+}
    
     async digUp() {
-        return new Promise((resolve, reject) => {
-            this.exec("turtle.digUp()").then((v) => {
-                if (v.result == "true") {
-                    this.inspectBlocks(); //Block has been broken, update findings.
-                }
-                this.getInventory()
-                resolve(v);
-            })
-        })}
+        var result =  await this.exec("turtle.digUp()");
+        if (result.result == "true") {
+            await this.inspectBlocks(); //Block has been broken, update world.
+        }
+        await this.getInventory();
+        return(result);
+}
 
     async digDown() {
-        return new Promise((resolve, reject) => {
-            this.exec("turtle.digDown()").then((v) => {
-                if (v.result == "true") {
-                    this.inspectBlocks(); //Block has been broken, update findings.
-                } 
-                this.getInventory()
-                resolve(v);
-            })
-        })}
+        var result =  await this.exec("turtle.digDown()");
+        if (result.result == "true") {
+            await this.inspectBlocks(); //Block has been broken, update world.
+        }
+        await this.getInventory();
+        return(result);
+}
     
     //basic dig macro
     async digForward(distance: number) {
         for (var i = 0; i <= distance; i++) {
+            await this.dig();
+            await this.forward();
+            await this.turnLeft();
+            await this.turnRight();
+            await this.turnRight();
+            await this.turnLeft();
+
+            /*
             await this.exec("turtle.dig()").then(async(v) => {
                 await this.inspectBlocks();
             });
 
             await this.exec("turtle.forward()").then((v) => {
                 if (v.result == true) {
-                   this.UpdatePosition("forward");
+                    this.UpdatePosition("forward");
                 }
             });
             
@@ -330,13 +308,11 @@ export class Turtle {
     }
     async moveForward(distance: number) {
         for (var i = 0; i < distance; i++) {
-            await this.exec("turtle.forward()").then(async(v) => {
-                if (v.result == "true") {
-                    await this.UpdatePosition("forward");
-                } else {
-                    return;
-                }
-            })
+            var result = await this.forward();
+            console.log(result);
+            if (result.result !== "true") {
+                break;
+            } //Continue walking forward if the last move foward was successful.
         }
     }
 }

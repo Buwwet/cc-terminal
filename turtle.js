@@ -162,11 +162,10 @@ var Turtle = /** @class */ (function () {
                                 break;
                         }
                         //After we have changed positions, update our saved position in the world
+                        this.world.updateTurtle(this, this.x, this.y, this.z, this.dir); //also save everything important for restarting a turtle
                         return [4 /*yield*/, this.inspectBlocks()];
                     case 1:
-                        //After we have changed positions, update our saved position in the world
                         _a.sent();
-                        this.world.updateTurtle(this, this.x, this.y, this.z, this.dir); //also save everything important for restarting a turtle
                         return [2 /*return*/];
                 }
             });
@@ -275,145 +274,172 @@ var Turtle = /** @class */ (function () {
     };
     Turtle.prototype.forward = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var result;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        _this.exec("turtle.forward()").then(function (v) {
-                            if (v.result == "true") {
-                                //DO stuff here
-                                _this.UpdatePosition("forward");
-                            }
-                            resolve(v);
-                        });
-                    })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exec("turtle.forward()")];
+                    case 1:
+                        result = _a.sent();
+                        if (!(result.result == "true")) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.UpdatePosition("forward")];
+                    case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3: return [2 /*return*/, (result)];
+                }
             });
         });
     };
     Turtle.prototype.back = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var result;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        _this.exec("turtle.back()").then(function (v) {
-                            if (v.result == "true") {
-                                //DO stuff here
-                                _this.UpdatePosition("back");
-                            }
-                            resolve(v);
-                        });
-                    })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exec("turtle.back()")];
+                    case 1:
+                        result = _a.sent();
+                        if (!(result.result == "true")) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.UpdatePosition("back")];
+                    case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3: return [2 /*return*/, (result)];
+                }
             });
         });
     };
     Turtle.prototype.up = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var result;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        _this.exec("turtle.up()").then(function (v) {
-                            if (v.result == "true") {
-                                //DO stuff here
-                                _this.UpdatePosition("up");
-                            }
-                            resolve(v);
-                        });
-                    })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exec("turtle.up()")];
+                    case 1:
+                        result = _a.sent();
+                        if (!(result.result == "true")) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.UpdatePosition("up")];
+                    case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3: return [2 /*return*/, (result)];
+                }
             });
         });
     };
     Turtle.prototype.down = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var result;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        _this.exec("turtle.down()").then(function (v) {
-                            if (v.result == "true") {
-                                //DO stuff here
-                                _this.UpdatePosition("down");
-                            }
-                            resolve(v);
-                        });
-                    })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exec("turtle.down()")];
+                    case 1:
+                        result = _a.sent();
+                        if (!(result.result == "true")) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.UpdatePosition("down")];
+                    case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3: return [2 /*return*/, (result)];
+                }
             });
         });
     };
     Turtle.prototype.turnLeft = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var result;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        _this.exec("turtle.turnLeft()").then(function (v) {
-                            if (v.result == "true") {
-                                //DO stuff here
-                                _this.UpdatePosition("left");
-                            }
-                            resolve(v);
-                        });
-                    })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exec("turtle.turnLeft()")];
+                    case 1:
+                        result = _a.sent();
+                        if (!(result.result == "true")) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.UpdatePosition("left")];
+                    case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3: return [2 /*return*/, (result)];
+                }
             });
         });
     };
     Turtle.prototype.turnRight = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var result;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        _this.exec("turtle.turnRight()").then(function (v) {
-                            if (v.result == "true") {
-                                //DO stuff here
-                                _this.UpdatePosition("right");
-                            }
-                            resolve(v);
-                        });
-                    })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exec("turtle.turnRight()")];
+                    case 1:
+                        result = _a.sent();
+                        if (!(result.result == "true")) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.UpdatePosition("right")];
+                    case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3: return [2 /*return*/, (result)];
+                }
             });
         });
     };
     Turtle.prototype.dig = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var result;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        _this.exec("turtle.dig()").then(function (v) {
-                            if (v.result == "true") {
-                                _this.inspectBlocks(); //Block has been broken, update findings.
-                            }
-                            _this.getInventory();
-                            resolve(v);
-                        });
-                    })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exec("turtle.dig()")];
+                    case 1:
+                        result = _a.sent();
+                        if (!(result.result == "true")) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.inspectBlocks()];
+                    case 2:
+                        _a.sent(); //Block has been broken, update world.
+                        _a.label = 3;
+                    case 3: return [4 /*yield*/, this.getInventory()];
+                    case 4:
+                        _a.sent();
+                        return [2 /*return*/, (result)];
+                }
             });
         });
     };
     Turtle.prototype.digUp = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var result;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        _this.exec("turtle.digUp()").then(function (v) {
-                            if (v.result == "true") {
-                                _this.inspectBlocks(); //Block has been broken, update findings.
-                            }
-                            _this.getInventory();
-                            resolve(v);
-                        });
-                    })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exec("turtle.digUp()")];
+                    case 1:
+                        result = _a.sent();
+                        if (!(result.result == "true")) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.inspectBlocks()];
+                    case 2:
+                        _a.sent(); //Block has been broken, update world.
+                        _a.label = 3;
+                    case 3: return [4 /*yield*/, this.getInventory()];
+                    case 4:
+                        _a.sent();
+                        return [2 /*return*/, (result)];
+                }
             });
         });
     };
     Turtle.prototype.digDown = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var result;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        _this.exec("turtle.digDown()").then(function (v) {
-                            if (v.result == "true") {
-                                _this.inspectBlocks(); //Block has been broken, update findings.
-                            }
-                            _this.getInventory();
-                            resolve(v);
-                        });
-                    })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.exec("turtle.digDown()")];
+                    case 1:
+                        result = _a.sent();
+                        if (!(result.result == "true")) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.inspectBlocks()];
+                    case 2:
+                        _a.sent(); //Block has been broken, update world.
+                        _a.label = 3;
+                    case 3: return [4 /*yield*/, this.getInventory()];
+                    case 4:
+                        _a.sent();
+                        return [2 /*return*/, (result)];
+                }
             });
         });
     };
@@ -421,79 +447,43 @@ var Turtle = /** @class */ (function () {
     Turtle.prototype.digForward = function (distance) {
         return __awaiter(this, void 0, void 0, function () {
             var i;
-            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         i = 0;
                         _a.label = 1;
                     case 1:
-                        if (!(i <= distance)) return [3 /*break*/, 16];
-                        return [4 /*yield*/, this.exec("turtle.dig()").then(function (v) { return __awaiter(_this, void 0, void 0, function () {
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0: return [4 /*yield*/, this.inspectBlocks()];
-                                        case 1:
-                                            _a.sent();
-                                            return [2 /*return*/];
-                                    }
-                                });
-                            }); })];
+                        if (!(i <= distance)) return [3 /*break*/, 9];
+                        return [4 /*yield*/, this.dig()];
                     case 2:
                         _a.sent();
-                        return [4 /*yield*/, this.exec("turtle.forward()").then(function (v) {
-                                if (v.result == true) {
-                                    _this.UpdatePosition("forward");
-                                }
-                            })];
+                        return [4 /*yield*/, this.forward()];
                     case 3:
                         _a.sent();
-                        return [4 /*yield*/, this.exec("turtle.turnLeft()")];
+                        return [4 /*yield*/, this.turnLeft()];
                     case 4:
                         _a.sent();
-                        return [4 /*yield*/, this.UpdatePosition("left")];
+                        return [4 /*yield*/, this.turnRight()];
                     case 5:
                         _a.sent();
-                        return [4 /*yield*/, this.inspectBlocks()];
+                        return [4 /*yield*/, this.turnRight()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, this.exec("turtle.turnRight()")];
+                        return [4 /*yield*/, this.turnLeft()];
                     case 7:
                         _a.sent();
-                        return [4 /*yield*/, this.UpdatePosition("right")];
+                        _a.label = 8;
                     case 8:
-                        _a.sent();
-                        return [4 /*yield*/, this.inspectBlocks()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, this.exec("turtle.turnRight()")];
-                    case 10:
-                        _a.sent();
-                        return [4 /*yield*/, this.UpdatePosition("right")];
-                    case 11:
-                        _a.sent();
-                        return [4 /*yield*/, this.inspectBlocks()];
-                    case 12:
-                        _a.sent();
-                        return [4 /*yield*/, this.exec("turtle.turnLeft()")];
-                    case 13:
-                        _a.sent();
-                        return [4 /*yield*/, this.UpdatePosition("left")];
-                    case 14:
-                        _a.sent();
-                        _a.label = 15;
-                    case 15:
                         i++;
                         return [3 /*break*/, 1];
-                    case 16: return [2 /*return*/];
+                    case 9: return [2 /*return*/];
                 }
             });
         });
     };
     Turtle.prototype.moveForward = function (distance) {
         return __awaiter(this, void 0, void 0, function () {
-            var i;
-            var _this = this;
+            var i, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -501,22 +491,13 @@ var Turtle = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         if (!(i < distance)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.exec("turtle.forward()").then(function (v) { return __awaiter(_this, void 0, void 0, function () {
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0:
-                                            if (!(v.result == "true")) return [3 /*break*/, 2];
-                                            return [4 /*yield*/, this.UpdatePosition("forward")];
-                                        case 1:
-                                            _a.sent();
-                                            return [3 /*break*/, 3];
-                                        case 2: return [2 /*return*/];
-                                        case 3: return [2 /*return*/];
-                                    }
-                                });
-                            }); })];
+                        return [4 /*yield*/, this.forward()];
                     case 2:
-                        _a.sent();
+                        result = _a.sent();
+                        console.log(result);
+                        if (result.result !== "true") {
+                            return [3 /*break*/, 4];
+                        } //Continue walking forward if the last move foward was successful.
                         _a.label = 3;
                     case 3:
                         i++;

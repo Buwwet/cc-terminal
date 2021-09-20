@@ -24,7 +24,7 @@ export default class Boxes extends Component {
                     </mesh>
                 )
             }
-            if (value == "minecraft:air") {
+            if (value == "minecraft:air" || value == "minecraft:water") {
                 return;
             }
             //console.log(key.split(','));
