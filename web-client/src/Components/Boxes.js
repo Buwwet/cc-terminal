@@ -23,9 +23,21 @@ export default class Boxes extends Component {
                         />
                     </mesh>
                 )
+                return;
             }
             if (value == "minecraft:air" || value == "minecraft:water") {
                 return;
+            }
+
+            //Check if block is near enough to be render.
+            let blockPos = key.split(',');
+            let turtlePos = [this.props.turtle.x, this.props.turtle.y, this.props.turtle.z];
+            for (var i = 0; i < 3; i++) {
+                var diference = blockPos[i] - turtlePos[i];
+                diference = Math.abs(diference);
+                if (diference > 20) { //If block is too far, do not render it.
+                    return;
+                }
             }
             //console.log(key.split(','));
             boxesArray.push(

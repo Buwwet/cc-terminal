@@ -1,9 +1,7 @@
 CLIENT:
-    -- Able to select any active computer.
+    -- Able to select any active computer.*
 
 SERVER:
-    -- Send to the client a list of active computers.
-    -- On disconect remove computer from list.
 
     TURTLE:
         -- Implement missing functions such as:

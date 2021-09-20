@@ -141,8 +141,6 @@ export class Turtle {
             this.connection.on('message', message => {
                 var jsonParse = JSON.parse(message.utf8Data);
                 //Get the response that we normaly get from the command.
-                var isTrueSet = (jsonParse.result === 'true')
-                //jsonParse.result = isTrueSet; //so that we dont have to make 7 if statements.
                 //console.log(jsonParse);
                 resolve(jsonParse);
             })
@@ -157,7 +155,7 @@ export class Turtle {
             await this.exec("turtle.inspect()").then((v) => {
                 //console.log("Forward: " + v.extra.name);
                 var blockName = (v.result == "true") ? v.extra.name : "minecraft:air";
-                //Compact forwardOffsets dependant on direction
+                //Compact forwardOffsets dependant on direction tell us where the block is relative to our direction.
                 var forwardOffsetX = (this.dir == Direction.EAST) ? 1 : (this.dir == Direction.WEST) ? -1 : 0;
                 var forwardOffsetZ = (this.dir == Direction.SOUTH) ? 1 : (this.dir == Direction.NORTH) ? -1 : 0;
                 this.world.updateBlock(this.x + forwardOffsetX, this.y, this.z + forwardOffsetZ, blockName);
@@ -187,7 +185,7 @@ export class Turtle {
         //console.log(this.inventory);
     }
 
-    async forward() { //The parent of all other functions that a turtle has.
+    async forward() { //The parent of all other functions basic that a turtle has.
         var result =  await this.exec("turtle.forward()");
         if (result.result == "true") {
             await this.UpdatePosition("forward");
@@ -265,51 +263,18 @@ export class Turtle {
     //basic dig macro
     async digForward(distance: number) {
         for (var i = 0; i <= distance; i++) {
-            await this.dig();
+            await this.dig();//POV: CODE.org
             await this.forward();
             await this.turnLeft();
             await this.turnRight();
             await this.turnRight();
             await this.turnLeft();
-
-            /*
-            await this.exec("turtle.dig()").then(async(v) => {
-                await this.inspectBlocks();
-            });
-
-            await this.exec("turtle.forward()").then((v) => {
-                if (v.result == true) {
-                    this.UpdatePosition("forward");
-                }
-            });
-            
-            await this.exec("turtle.turnLeft()");
-            await this.UpdatePosition("left");
-            await this.inspectBlocks();
-
-            await this.exec("turtle.turnRight()");
-            await this.UpdatePosition("right");
-            await this.inspectBlocks();
-
-            await this.exec("turtle.turnRight()");
-            await this.UpdatePosition("right");
-            await this.inspectBlocks();
-
-            await this.exec("turtle.turnLeft()");
-            await this.UpdatePosition("left");
-            /*
-            await this.forward();
-            await this.turnLeft();
-            await this.turnRight();
-            await this.turnRight();
-            await this.turnLeft();
-            */
         }
     }
     async moveForward(distance: number) {
         for (var i = 0; i < distance; i++) {
             var result = await this.forward();
-            console.log(result);
+            //console.log(result);
             if (result.result !== "true") {
                 break;
             } //Continue walking forward if the last move foward was successful.

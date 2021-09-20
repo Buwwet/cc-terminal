@@ -13,7 +13,7 @@ const wsServer = new webSocketServer({
     httpServer: server
 })
 
-const connections = [];
+var connections = [];
 const turtles = [];
 
 const world = new World(updateWorld);
@@ -28,7 +28,7 @@ wsServer.on('request', (request) => {
         type: "unknown"
     });
 
-
+    //On message
     connection.on('message', (message) => {
         var messageParse = JSON.parse(message.utf8Data);
 
@@ -40,9 +40,7 @@ wsServer.on('request', (request) => {
                     client.type = messageParse.msg;
                     //Add it to the turtle array
                     if (client.type == "turtle") {
-                        turtles.push({
-                            turtle: new Turtle([0,0,0], 0, connection, world)
-                        });
+                        turtles.push(new Turtle([0,0,0], 0, connection, world));
                         //var test = turtles[turtles.length - 1].turtle.forward();
                         //test.then((test2) => console.log(test2))
                         //console.log(turtles[0]);
@@ -54,55 +52,63 @@ wsServer.on('request', (request) => {
         
         //Run the functions from the Turtle class
         if (messageParse.type == "eval") {
-            eval("turtles[turtles.length - 1].turtle." + messageParse.msg).then(() => {
+            eval("turtles[turtles.length - 1]." + messageParse.msg).then(() => {
                 var sendJSON = {
                     "type":"log",
-                    "msg": turtles[turtles.length - 1].turtle.getJSON()
+                    "msg": turtles[turtles.length - 1].getJSON()
                 }
-                connection.send(JSON.stringify(sendJSON));
-                //console.log(worldJSON);
-                //Move this to world
-                //connection.send(JSON.stringify(worldJSON));
+                connection.send(JSON.stringify(sendJSON)); //Update the client with new turtle JSON
             })
         }
+    })
 
-        /*
-        //Forward messages with the type eval to the computer
-        if (messageParse.type == "eval") {
-            turtles[turtles.length - 1].connection.send(JSON.stringify(messageParse));
-        }
-        
-        /*
-        connection.send(JSON.stringify({
-            "type": "text",
-            "msg": "Message recieved.",
-            messageParse
-        }))
-        */
+    //When connection closes remove connection from list
+    connection.on("close", (message) => {
+        //console.log(connections);
+        connections.map((value, i) => {
+            if (value.connection == connection) {
+                connections.splice(i, 1); //Remove connection from array
+                //Splice does its thing on the array then it returns the values that were spliced.
+                if (value.type == "turtle") { //If turtle map the turtles array and remove it too.
+                        turtles.map((turtle, i) => {
+                            if (turtle.connection == connection) {
+                                turtles.splice(i, 1); //TODO: Check
+                            }
+                        })
+                    }
+                return;
+            }
+        })
+        //console.log(connections);
     })
 
 })
 
-function updateWorld() {
+function updateWorld() { //This function is given to the world.ts World class. It runs it whenever we update the world.
     //console.log("worldJSON")
     connections.map((value, index) => {
         if (value.type == 'client') {
             var worldJSON = {
                 "type":"world",
-                "msg": turtles[turtles.length - 1].turtle.world.getJSON()
+                "msg": turtles[turtles.length - 1].world.getJSON()
             }
             
-            value.connection.send(JSON.stringify(worldJSON));
+            value.connection.send(JSON.stringify(worldJSON)); //Send the world
+            
+            const turtleJSONArray = turtles.map((turtle, i) => {
+                return turtle.getJSON();
+            })
+            //console.log(turtleJSONArray);
             var turtleJSON = {
                 "type":"turtle",
-                "msg": turtles[turtles.length - 1].turtle.getJSON(),
+                "msg": JSON.stringify(turtleJSONArray),
             }
             value.connection.send(JSON.stringify(turtleJSON));
             var inventoryJSON = {
                 "type":"log",
-                "msg": turtles[turtles.length - 1].turtle.inventory
+                "msg": turtles[turtles.length - 1].inventory
             }
-            value.connection.send(JSON.stringify(inventoryJSON));
+            value.connection.send(JSON.stringify(inventoryJSON)); //Send the inventory
         }
     })
 }

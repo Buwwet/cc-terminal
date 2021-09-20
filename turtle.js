@@ -188,8 +188,6 @@ var Turtle = /** @class */ (function () {
                         _this.connection.on('message', function (message) {
                             var jsonParse = JSON.parse(message.utf8Data);
                             //Get the response that we normaly get from the command.
-                            var isTrueSet = (jsonParse.result === 'true');
-                            //jsonParse.result = isTrueSet; //so that we dont have to make 7 if statements.
                             //console.log(jsonParse);
                             resolve(jsonParse);
                         });
@@ -213,7 +211,7 @@ var Turtle = /** @class */ (function () {
                                 return [4 /*yield*/, this.exec("turtle.inspect()").then(function (v) {
                                         //console.log("Forward: " + v.extra.name);
                                         var blockName = (v.result == "true") ? v.extra.name : "minecraft:air";
-                                        //Compact forwardOffsets dependant on direction
+                                        //Compact forwardOffsets dependant on direction tell us where the block is relative to our direction.
                                         var forwardOffsetX = (_this.dir == Direction.EAST) ? 1 : (_this.dir == Direction.WEST) ? -1 : 0;
                                         var forwardOffsetZ = (_this.dir == Direction.SOUTH) ? 1 : (_this.dir == Direction.NORTH) ? -1 : 0;
                                         _this.world.updateBlock(_this.x + forwardOffsetX, _this.y, _this.z + forwardOffsetZ, blockName);
@@ -456,7 +454,7 @@ var Turtle = /** @class */ (function () {
                         if (!(i <= distance)) return [3 /*break*/, 9];
                         return [4 /*yield*/, this.dig()];
                     case 2:
-                        _a.sent();
+                        _a.sent(); //POV: CODE.org
                         return [4 /*yield*/, this.forward()];
                     case 3:
                         _a.sent();
@@ -494,7 +492,7 @@ var Turtle = /** @class */ (function () {
                         return [4 /*yield*/, this.forward()];
                     case 2:
                         result = _a.sent();
-                        console.log(result);
+                        //console.log(result);
                         if (result.result !== "true") {
                             return [3 /*break*/, 4];
                         } //Continue walking forward if the last move foward was successful.

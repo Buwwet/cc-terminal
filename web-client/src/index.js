@@ -29,7 +29,9 @@ export default class App extends Component {
             text: '',
             bus: [],
             world: {"0,0,0":"test"},
-            turtle: {x: 0, y: 0, z: 0, label: "null"}
+            turtle: {x: 0, y: 0, z: 0, label: "null"},
+            turtles: {},
+            selectedTurtle: 0,
         }
     }
 
@@ -66,7 +68,8 @@ export default class App extends Component {
             //Lets the server know that we can command machines.
         }
         client.onmessage = (message) => {
-            const dataFromServer = JSON.parse(message.data, );
+            const dataFromServer = JSON.parse(message.data);
+            //console.log(dataFromServer);
             //Logs things like turtle.getJSON()
             if (dataFromServer.type == "log") {
                 console.log(dataFromServer.msg);
@@ -80,8 +83,12 @@ export default class App extends Component {
             if (dataFromServer.type == "turtle") {
                 //console.log(dataFromServer.msg)
                 this.setState((state) => {
-                    return {turtle: dataFromServer.msg}
+                    return {turtles: JSON.parse(dataFromServer.msg)}
                 })
+                this.setState((state) => {
+                    return {turtle: state.turtles[state.selectedTurtle]}
+                })
+                
             }
             //this.pushToBus(JSON.stringify(dataFromServer));
             //console.log(dataFromServer);
@@ -139,6 +146,7 @@ export default class App extends Component {
                     <Boxes
                         world={this.state.world}
                         handleHover={this.handleHover}
+                        turtle={this.state.turtle}
                     />
                 </group>
                 <Arrow turtle={this.state.turtle}/>
